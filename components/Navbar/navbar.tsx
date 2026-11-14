@@ -7,6 +7,7 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { authClient, useSession } from "@/lib/auth-client"
 
 
 const navLinks = [
@@ -18,6 +19,9 @@ const navLinks = [
 // 2. Small pieces so the main Navbar stays easy to read
 
 function Logo() {
+
+ 
+
   return (
     <Link href="/" className="flex items-center">
       <Image src="/logo.png" alt="HireLoop" width={110} height={36} priority />
@@ -46,6 +50,12 @@ function NavLink({ label, href, onClick }: { label: string; href: string; onClic
 // 3. Main navbar — dark floating pill like the design
 export function Navbar() {
   const [open, setOpen] = useState(false)
+   const {data : session} = useSession()
+  const user = session?.user
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+  }
 
   return (
     <div className="sticky top-0 z-50 px-4 pt-4">
@@ -61,7 +71,18 @@ export function Navbar() {
         </div>
 
         {/* Right: sign in + get started */}
-        <div className="hidden items-center gap-5 md:flex">
+
+          {user ? <div className="flex gap-4">
+             <p>Wellcome {user?.name}</p>
+            <button
+            onClick={handleLogout}
+            className="rounded-lg bg-[#f33535] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#f60a0a]"
+          >
+            Log Out
+          </button>
+          </div> : 
+          <>
+            <div className="hidden items-center gap-5 md:flex">
           <Link
             href="/sign-in"
             className="text-[13px] text-white/80 transition-colors hover:text-white"
@@ -75,6 +96,10 @@ export function Navbar() {
             Get Started
           </Link>
         </div>
+          </> }
+
+
+        
 
         {/* Mobile: hamburger button */}
         <button

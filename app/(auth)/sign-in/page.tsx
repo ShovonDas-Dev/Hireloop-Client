@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 
-import { signIn } from "@/lib/auth-client"
+import { authClient, signIn } from "@/lib/auth-client"
 
 // Small inline Google logo for the button
 function GoogleIcon() {
@@ -33,14 +33,27 @@ function GoogleIcon() {
 export default function SignInPage() {
   const [message, setMessage] = useState("")
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
     const data = Object.fromEntries(formData.entries())
 
+    const {  error } = await authClient.signIn.email({
+    email: String(data.email), // required, The email address of the user.
+    password: String(data.password), // required, The password of the user. It should be at least 8 characters long and max 128 by default.
+    rememberMe: true, // If false, the user will be signed out when the browser is closed. (optional) (default: true)
+    callbackURL: "/", // An optional URL to redirect to after the user signs in. (optional)
+});
+
+  if(error){
+    setMessage(error.message ?? "Sign-in failed.")
+    return
+  }
+
+
     console.log("Sign in data:", data)
-    setMessage("Form submitted! Check the console for the collected data.")
+    setMessage("you are successfully log in")
   }
 
   const handleGoogleSignIn = async () => {

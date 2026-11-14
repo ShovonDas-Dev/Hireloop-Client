@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
-import { authClient, signIn } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 // Role options for the account type picker (seeker is the default)
 const roleOptions = [
@@ -13,63 +14,79 @@ const roleOptions = [
   { value: "admin", label: "Admin", description: "Manage the platform" },
 ]
 
-// // Small inline Google logo for the button
-// function GoogleIcon() {
-//   return (
-//     <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-//       <path
-//         fill="#EA4335"
-//         d="M12 5.04c1.62 0 3.06.56 4.2 1.64l3.12-3.12C17.46 1.8 14.96.72 12 .72 7.44.72 3.56 3.3 1.68 7.04l3.66 2.84C6.24 7.14 8.88 5.04 12 5.04z"
-//       />
-//       <path
-//         fill="#4285F4"
-//         d="M23.28 12.26c0-.8-.08-1.56-.2-2.26H12v4.52h6.34c-.28 1.48-1.1 2.74-2.34 3.58l3.62 2.8c2.1-1.94 3.66-4.8 3.66-8.64z"
-//       />
-//       <path
-//         fill="#FBBC05"
-//         d="M5.34 14.12a6.9 6.9 0 0 1 0-4.24L1.68 7.04a11.28 11.28 0 0 0 0 9.92l3.66-2.84z"
-//       />
-//       <path
-//         fill="#34A853"
-//         d="M12 23.28c2.96 0 5.46-.98 7.28-2.66l-3.62-2.8c-1 .68-2.28 1.1-3.66 1.1-3.12 0-5.76-2.1-6.66-4.94l-3.66 2.84c1.88 3.74 5.76 6.46 10.32 6.46z"
-//       />
-//     </svg>
-//   )
-// }
+// Small inline Google logo for the button
+function GoogleIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#EA4335"
+        d="M12 5.04c1.62 0 3.06.56 4.2 1.64l3.12-3.12C17.46 1.8 14.96.72 12 .72 7.44.72 3.56 3.3 1.68 7.04l3.66 2.84C6.24 7.14 8.88 5.04 12 5.04z"
+      />
+      <path
+        fill="#4285F4"
+        d="M23.28 12.26c0-.8-.08-1.56-.2-2.26H12v4.52h6.34c-.28 1.48-1.1 2.74-2.34 3.58l3.62 2.8c2.1-1.94 3.66-4.8 3.66-8.64z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.34 14.12a6.9 6.9 0 0 1 0-4.24L1.68 7.04a11.28 11.28 0 0 0 0 9.92l3.66-2.84z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23.28c2.96 0 5.46-.98 7.28-2.66l-3.62-2.8c-1 .68-2.28 1.1-3.66 1.1-3.12 0-5.76-2.1-6.66-4.94l-3.66 2.84c1.88 3.74 5.76 6.46 10.32 6.46z"
+      />
+    </svg>
+  )
+}
 
-// // Sign-up page — form data is just collected for now (auth comes later)
-// export default function SignUpPage() {
-//   const [role, setRole] = useState("seeker")
-//   const [message, setMessage] = useState("")
+export default function SignUpPage() {
+  const [role, setRole] = useState("seeker")
+  const [message, setMessage] = useState("")
+  const [isError, setIsError] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-// const handleSubmit = async (
-//   event: React.FormEvent<HTMLFormElement>
-// ) => {
-//   event.preventDefault()
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setMessage("")
+    setLoading(true)
 
-//   const formData = new FormData(event.currentTarget)
+    const formData = new FormData(event.currentTarget)
 
-//   const { data, error } = await authClient.signUp.email({
-//     name: formData.get("name") as string,
-//     email: formData.get("email") as string,
-//     password: formData.get("password") as string,
-//   })
+    const { error } = await authClient.signUp.email({
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      role,
+    })
+    
+    if(!error){
+      router.push("/")
+       router.refresh()
 
-//   if (error) {
-//     setMessage(error.message ?? "Sign-up failed.")
-//     return
-//   }
+    }
 
-//   setMessage("Account created successfully!")
-// }
+    setLoading(false)
+
+    if (error) {
+      setIsError(true)
+      setMessage(error.message ?? "Sign-up failed.")
+      return
+    }
+
+    setIsError(false)
+    setMessage("Account created successfully!")
+  }
 
   const handleGoogleSignUp = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    const data = await authClient.signIn.social({
+    const { error } = await authClient.signIn.social({
       provider: "google",
     })
-    console.log("Google sign-in data:", data)
 
+    if (error) {
+      setIsError(true)
+      setMessage(error.message ?? "Google sign-in failed.")
+    }
   }
 
   return (
@@ -83,17 +100,16 @@ const roleOptions = [
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
-
-             {/* Account type picker */}
+          {/* Account type picker */}
           <div className="flex flex-col gap-1.5">
             <span className="text-[13px] text-white/80">Account Type</span>
-            <div className="flex  gap-2">
+            <div className="flex gap-2">
               {roleOptions.map((option) => (
                 <label
                   onClick={() => setRole(option.value)}
                   key={option.value}
                   className={cn(
-                    "flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 ring-1 transition-colors",
+                    "flex flex-1 cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 ring-1 transition-colors",
                     role === option.value
                       ? "bg-[#6c5cf6]/15 ring-[#6c5cf6]"
                       : "bg-white/5 ring-white/10 hover:ring-white/20"
@@ -111,8 +127,6 @@ const roleOptions = [
               ))}
             </div>
           </div>
-
-
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="name" className="text-[13px] text-white/80">
@@ -157,13 +171,12 @@ const roleOptions = [
             />
           </div>
 
-         
-
           <button
             type="submit"
-            className="mt-2 h-10 rounded-lg bg-[#6c5cf6] text-sm font-medium text-white transition-colors hover:bg-[#5b4be6]"
+            disabled={loading}
+            className="mt-2 h-10 rounded-lg bg-[#6c5cf6] text-sm font-medium text-white transition-colors hover:bg-[#5b4be6] disabled:opacity-60"
           >
-            Get Started
+            {loading ? "Creating account..." : "Get Started"}
           </button>
 
           {/* Divider */}
@@ -184,7 +197,16 @@ const roleOptions = [
           </button>
         </form>
 
-        {message && <p className="mt-4 text-xs text-emerald-400">{message}</p>}
+        {message && (
+          <p
+            className={cn(
+              "mt-4 text-xs",
+              isError ? "text-red-400" : "text-emerald-400"
+            )}
+          >
+            {message}
+          </p>
+        )}
 
         {/* Switch to sign in */}
         <p className="mt-6 text-center text-[13px] text-white/60">

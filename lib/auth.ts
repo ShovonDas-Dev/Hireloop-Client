@@ -19,15 +19,14 @@ export const auth = betterAuth({
   },
 
   user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "seeker",
-        input: true,
-      },
+       additionalFields: {
+           role: {
+               type: "string",
+               input: true,
+               defaultValue: "seeker",
+             } 
+        }
     },
-  },
 
   baseURL: process.env.BETTER_AUTH_URL,
 

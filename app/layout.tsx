@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono, Inter, Instrument_Sans } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Navbar } from "@/components/Navbar/navbar" 
+import { ThemeProvider } from "@wrksz/themes/next"
+import { ThemeHotkey } from "@/components/ui/theme-provider"
+import { Navbar } from "@/components/Navbar/navbar"
 import { cn } from "@/lib/utils"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -38,7 +39,13 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ThemeHotkey />
           <Navbar />
           {children}
         </ThemeProvider>

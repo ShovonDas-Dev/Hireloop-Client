@@ -1,7 +1,5 @@
+import { HeroSection } from "@/components/hero/hero-section"
+
 export default function Page() {
-  return (
-    <>
-      <h1>Welcome to the App</h1>
-    </>
-  )
+  return <HeroSection />
 }
