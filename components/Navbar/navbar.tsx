@@ -10,11 +10,8 @@ import { cn } from "@/lib/utils"
 import { authClient, useSession } from "@/lib/auth-client"
 
 
-const navLinks = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/company" },
-  { label: "Pricing", href: "/pricing" },
-]
+
+
 
 // 2. Small pieces so the main Navbar stays easy to read
 
@@ -52,6 +49,14 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
    const {data : session} = useSession()
   const user = session?.user
+
+
+  const navLinks = [
+  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Company", href: "/company" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Dashboard", href: `dashboard/${user?.role || "seeker"}`}
+]
 
   const handleLogout = async () => {
     await authClient.signOut();
