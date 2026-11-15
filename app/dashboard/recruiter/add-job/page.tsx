@@ -16,7 +16,8 @@ import {
   X,
 } from "lucide-react"
 import { createJobs } from "@/lib/acction/jobs"
-import { date } from "better-auth"
+
+
 
 // Types
 type JobType = "Full-time" | "Part-time" | "Contract" | "Internship"
@@ -88,6 +89,8 @@ const FREQUENCIES: SalaryFrequency[] = [
   requirements: "",
 }
 
+
+
 // Styles
 const inputClass =
   "h-11 w-full rounded-xl border border-transparent bg-[#1e1e21] px-4 text-sm text-white outline-none placeholder:text-[#5a5a60] focus:border-[#5c53fe] focus:ring-2 focus:ring-[#5c53fe]/30 [color-scheme:dark]"
@@ -135,10 +138,11 @@ export default function AddJob() {
     console.log("New job data:", form)
 
     createJobs(form)
-    
+
     setShowSuccess(true)
     setForm({ ...initialForm })
   }
+
 
   return (
     <form
