@@ -1,7 +1,8 @@
 // Shared job types, option lists, and API shapes used by recruiter pages,
 // job forms, and the jobs API layer.
 
-export type JobType = "Full-time" | "Part-time" | "Contract" | "Internship"
+export type JobType =
+  "Full-time" | "Part-time" | "Contract" | "Internship" | "Freelance"
 
 export type JobCategory =
   | "Engineering & Tech"
@@ -41,6 +42,7 @@ export const JOB_TYPES: JobType[] = [
   "Part-time",
   "Contract",
   "Internship",
+  "Freelance",
 ]
 
 export const JOB_CATEGORIES: JobCategory[] = [

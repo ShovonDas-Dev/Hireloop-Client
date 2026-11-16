@@ -4,32 +4,32 @@
 
 import { JOB_TYPES, type JobPost, type JobType } from "@/types/job"
 
+// Jobs per page — sent to the backend as ?limit=
+export const JOBS_PER_PAGE = 6
+
 // Sort tokens sent to the backend as ?sort=*
-export const JOB_SORTS = ["recent", "oldest", "salary", "relevant"] as const
+export const JOB_SORTS = ["newest", "oldest", "salary"] as const
 export type JobSort = (typeof JOB_SORTS)[number]
 
 export const JOB_SORT_OPTIONS: { value: JobSort; label: string }[] = [
-  { value: "recent", label: "Most Recent" },
+  { value: "newest", label: "Most Recent" },
   { value: "oldest", label: "Oldest" },
   { value: "salary", label: "Highest Salary" },
-  { value: "relevant", label: "Most Relevant" },
 ]
 
-// Filter state as parsed from the URL (?search=&jobType=Full-time&...)
+// Filter state as parsed from the URL (?search=&jobType=Full-time,Contract&...)
 export type JobFilterValues = {
   search: string
   jobTypes: JobType[]
-  category: string // empty string = all categories
-  remoteOnly: boolean
   sort: JobSort
+  page: number
 }
 
 const DEFAULT_FILTERS: JobFilterValues = {
   search: "",
   jobTypes: [],
-  category: "",
-  remoteOnly: false,
-  sort: "recent",
+  sort: "newest",
+  page: 1,
 }
 
 type RawParams = Record<string, string | string[] | undefined>
@@ -43,45 +43,48 @@ export function parseJobFilters(params: RawParams): JobFilterValues {
   const search = first(params.search)
   if (search) values.search = search
 
-  const jobTypes = params.jobType
-    ? Array.isArray(params.jobType)
-      ? params.jobType
-      : [params.jobType]
-    : []
-  values.jobTypes = jobTypes.filter((type) =>
-    (JOB_TYPES as string[]).includes(type)
-  )
+  // jobType is stored comma-separated in the URL (?jobType=Full-time,Contract)
+  const jobType = first(params.jobType)
+  if (jobType) {
+    values.jobTypes = jobType
+      .split(",")
+      .map((type) => type.trim())
+      .filter((type): type is JobType =>
+        (JOB_TYPES as readonly string[]).includes(type)
+      )
+  }
 
-  const category = first(params.category)
-  if (category) values.category = category
+  const sort = first(params.sort)
+  if (sort && (JOB_SORTS as readonly string[]).includes(sort)) {
+    values.sort = sort as JobSort
+  }
 
-  if (first(params.remote) === "1") values.remoteOnly = true
+  const page = Number(first(params.page))
+  if (Number.isInteger(page) && page > 1) values.page = page
 
   return values
 }
 
-export function parseJobPage(params: RawParams, totalPages: number): number {
-  const page = Number(first(params.page))
-  if (!Number.isInteger(page) || page < 1) return 1
-  return totalPages > 0 ? Math.min(page, totalPages) : 1
-}
-
-// Query string for GET /jobs — repeated jobType keys, empty values omitted.
-// Pagination is applied on the client, so ?page= is not sent.
+// Query string for GET /jobs — includes pagination and sort.
 export function jobsQueryString(filters: JobFilterValues): string {
   const params = new URLSearchParams()
 
   if (filters.search) params.set("search", filters.search)
-  filters.jobTypes.forEach((type) => params.append("jobType", type))
-  if (filters.category) params.set("category", filters.category)
-  if (filters.remoteOnly) params.set("remote", "1")
+  if (filters.jobTypes.length > 0) {
+    params.set("jobType", filters.jobTypes.join(","))
+  }
   params.set("sort", filters.sort)
+  params.set("page", String(filters.page))
+  params.set("limit", String(JOBS_PER_PAGE))
 
   return params.toString()
 }
 
 // Pager: pages to render, with `null` entries marking an ellipsis gap.
-export function paginationPages(page: number, totalPages: number): (number | null)[] {
+export function paginationPages(
+  page: number,
+  totalPages: number
+): (number | null)[] {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, i) => i + 1)
   }
@@ -103,7 +106,7 @@ export function paginationPages(page: number, totalPages: number): (number | nul
 // --- Display helpers ---
 
 export const formatJobLocation = (job: JobPost) =>
-  job.isRemote ? `Remote (${job.location})` : job.location
+  job.isRemote ? `${job.location} (Remote)` : job.location
 
 export function formatSalaryRange(job: JobPost): string {
   const min = Number(job.minSalary)

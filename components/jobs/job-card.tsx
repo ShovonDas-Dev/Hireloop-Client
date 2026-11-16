@@ -1,4 +1,4 @@
-import { Banknote, Bookmark, Briefcase, Globe, MapPin } from "lucide-react"
+import { Banknote, Bookmark, Briefcase, Flame, MapPin, Zap } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { formatJobLocation, formatSalaryRange } from "@/lib/jobs-search"
@@ -63,10 +63,14 @@ export function JobCard({ job }: { job: JobPost }) {
             <Briefcase className="size-3.5" strokeWidth={1.5} />
             {job.jobType}
           </JobBadge>
-          {job.isRemote && (
+          <JobBadge>
+            <Zap className="size-3.5" strokeWidth={1.5} />
+            Easy Apply
+          </JobBadge>
+          {job.applicants >= 10 && (
             <JobBadge>
-              <Globe className="size-3.5" strokeWidth={1.5} />
-              Remote
+              <Flame className="size-3.5" strokeWidth={1.5} />
+              Hot Job
             </JobBadge>
           )}
         </div>

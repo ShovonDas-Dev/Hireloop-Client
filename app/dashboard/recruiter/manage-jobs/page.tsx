@@ -59,7 +59,7 @@ const headerCellClass =
 const bodyCellClass = "px-5 py-4 whitespace-nowrap"
 
 export default async function ManageJobs() {
-  const JOBS = await getJobs()
+  const { jobs: JOBS } = await getJobs()
 
   return (
     <div className="min-h-screen w-full bg-[#131314] text-white">
