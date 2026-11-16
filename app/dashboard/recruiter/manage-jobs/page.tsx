@@ -3,30 +3,16 @@ import {
   Briefcase,
   ChevronRight,
   Code,
-  Eye,
   MapPin,
   Megaphone,
-  MoreVertical,
   Palette,
   Plus,
-  SquarePen,
   Users,
-  Trash2, 
 } from "lucide-react"
 
-import { JobFormData } from "@/app/dashboard/recruiter/add-job/page"
 import { getJobs } from "@/lib/api/jobs"
-import Buttone from "./Buttone"
-
-export type JobPost = JobFormData & {
-  _id: string
-  applicants: number
-  postedAt: string
-}
-
-
-
-
+import type { JobPost } from "@/types/job"
+import Button from "./Button"
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Engineering & Tech": "text-[#38bdf8]",
@@ -73,10 +59,7 @@ const headerCellClass =
 const bodyCellClass = "px-5 py-4 whitespace-nowrap"
 
 export default async function ManageJobs() {
-
   const JOBS = await getJobs()
-
-
 
   return (
     <div className="min-h-screen w-full bg-[#131314] text-white">
@@ -122,7 +105,7 @@ export default async function ManageJobs() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#232327]">
-              {JOBS.map((job : JobPost) => {
+              {JOBS.map((job: JobPost) => {
                 const expired = isExpired(job.deadline)
                 const Icon = CATEGORY_ICONS[job.category] ?? Briefcase
                 return (
@@ -203,7 +186,7 @@ export default async function ManageJobs() {
                       </p>
                     </td>
                     <td className={`${bodyCellClass} pr-6`}>
-                      <Buttone job = {job}/>
+                      <Button jobId={job._id} />
                     </td>
                   </tr>
                 )

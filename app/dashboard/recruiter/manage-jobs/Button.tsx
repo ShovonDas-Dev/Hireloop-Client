@@ -1,5 +1,9 @@
-'use client'
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Eye, MoreVertical, SquarePen, Trash2 } from "lucide-react"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,16 +15,48 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { toast } from "@/components/ui/toast"
 import { deleteJobs } from "@/lib/acction/jobs"
-import { JobPost } from "./page"
 
-const Buttone = (job : JobPost) => {
+const DeleteJobButton = ({ jobId }: { jobId: string }) => {
+  const [open, setOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const router = useRouter()
 
-    const handleDelete = async () => {
-        await deleteJobs(job._id)
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      const data = await deleteJobs({ jobId })
+
+      if (data?.deletedCount > 0) {
+        setOpen(false)
+        toast.add({
+          title: "Job deleted",
+          description: "Successfully removed this job.",
+          type: "success",
+        })
+        router.refresh()
+      } else {
+        toast.add({
+          title: "Delete failed",
+          description: "Job not found. It may have already been removed.",
+          type: "error",
+        })
+      }
+    } catch (err) {
+      console.error(err)
+      toast.add({
+        title: "Delete failed",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again.",
+        type: "error",
+      })
+    } finally {
+      setDeleting(false)
     }
-
-
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -38,13 +74,14 @@ const Buttone = (job : JobPost) => {
       >
         <Eye className="h-4 w-4" />
       </button>
-      <AlertDialog>
-        <AlertDialogTrigger >
-        
-            <Trash2 size={18} />
-          
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-red-400/80 transition-colors hover:bg-[#1f1f1f] hover:text-red-400"
+          aria-label="Delete job"
+        >
+          <Trash2 size={18} />
         </AlertDialogTrigger>
-    
+
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -58,7 +95,9 @@ const Buttone = (job : JobPost) => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
 
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction disabled={deleting} onClick={handleDelete}>
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -73,4 +112,4 @@ const Buttone = (job : JobPost) => {
   )
 }
 
-export default Buttone
+export default DeleteJobButton

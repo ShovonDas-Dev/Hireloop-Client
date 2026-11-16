@@ -5,16 +5,16 @@ import { auth } from "./auth"
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL,
-   
-   plugins: [inferAdditionalFields<typeof auth>({
-    
+
+  plugins: [
+    inferAdditionalFields<typeof auth>({
       user: {
         role: {
-          type: "string"
-        }
-      }
-  
-   })],
+          type: "string",
+        },
+      },
+    }),
+  ],
 })
 
 export const { signIn, signUp, signOut, useSession } = authClient

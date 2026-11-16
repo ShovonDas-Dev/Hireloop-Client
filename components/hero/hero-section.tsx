@@ -1,20 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import {
-  Briefcase,
-  Building2,
-  MapPin,
-  Search,
-  Star,
-  Users,
-} from "lucide-react"
+import { Briefcase, Building2, MapPin, Search, Star, Users } from "lucide-react"
 
-const trendingRoles = [
-  "Product Designer",
-  "AI Engineering",
-  "Dev-ops Engineer",
-]
+const trendingRoles = ["Product Designer", "AI Engineering", "Dev-ops Engineer"]
 
 const stats = [
   { icon: Briefcase, value: "50K", label: "Active Jobs" },
@@ -99,7 +88,7 @@ export function HeroSection() {
         className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-56 bg-gradient-to-b from-black/80 to-transparent"
       />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1100px] flex-1 flex-col px-4 pb-8 pt-10 sm:px-6 sm:pb-12 sm:pt-16">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1100px] flex-1 flex-col px-4 pt-10 pb-8 sm:px-6 sm:pt-16 sm:pb-12">
         {/* Top badge */}
         <div className="flex items-center justify-center gap-4">
           <div className="hidden h-px max-w-[180px] flex-1 bg-gradient-to-r from-transparent to-white/15 sm:block" />
@@ -111,7 +100,7 @@ export function HeroSection() {
             <span className="font-mono text-xs font-bold text-white">
               50,000+
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-white/50">
+            <span className="font-mono text-[10px] tracking-wider text-white/50 uppercase">
               New jobs this month
             </span>
           </div>

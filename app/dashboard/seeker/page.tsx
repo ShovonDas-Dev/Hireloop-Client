@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react"
 
 const seekerDashboard = () => {
-  return (
-    <div>seekerDashboard</div>
-  )
+  return <div>seekerDashboard</div>
 }
 
 export default seekerDashboard

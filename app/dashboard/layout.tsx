@@ -1,9 +1,8 @@
-import React from 'react'
+import React from "react"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from '@/components/Dashboard/app-sidebar' 
+import { AppSidebar } from "@/components/Dashboard/app-sidebar"
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
- 
-    return (
+  return (
     <SidebarProvider>
       <AppSidebar />
       <main>
@@ -12,10 +11,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
     </SidebarProvider>
   )
-  
 }
 
 export default DashboardLayout
-
-
-

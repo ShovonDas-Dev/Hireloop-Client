@@ -1,53 +1,42 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
-
-import { cn } from "@/lib/utils"
-import { authClient } from "@/lib/auth-client"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
+
+import { toast } from "@/components/ui/toast"
+import {
+  AuthDivider,
+  AuthField,
+  AuthInput,
+  GoogleIcon,
+} from "@/components/shared/auth-form"
+import { cn } from "@/lib/utils"
+import {
+  authCardClass,
+  authGoogleButtonClass,
+  authPrimaryButtonClass,
+} from "@/lib/form-styles"
+import { authClient } from "@/lib/auth-client"
 
 // Role options for the account type picker (seeker is the default)
 const roleOptions = [
-  { value: "seeker", label: "Job Seeker", description: "Find and apply for jobs" },
+  {
+    value: "seeker",
+    label: "Job Seeker",
+    description: "Find and apply for jobs",
+  },
   { value: "recruiter", label: "Recruiter", description: "Hire great talent" },
   { value: "admin", label: "Admin", description: "Manage the platform" },
 ]
 
-// Small inline Google logo for the button
-function GoogleIcon() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="#EA4335"
-        d="M12 5.04c1.62 0 3.06.56 4.2 1.64l3.12-3.12C17.46 1.8 14.96.72 12 .72 7.44.72 3.56 3.3 1.68 7.04l3.66 2.84C6.24 7.14 8.88 5.04 12 5.04z"
-      />
-      <path
-        fill="#4285F4"
-        d="M23.28 12.26c0-.8-.08-1.56-.2-2.26H12v4.52h6.34c-.28 1.48-1.1 2.74-2.34 3.58l3.62 2.8c2.1-1.94 3.66-4.8 3.66-8.64z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.34 14.12a6.9 6.9 0 0 1 0-4.24L1.68 7.04a11.28 11.28 0 0 0 0 9.92l3.66-2.84z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23.28c2.96 0 5.46-.98 7.28-2.66l-3.62-2.8c-1 .68-2.28 1.1-3.66 1.1-3.12 0-5.76-2.1-6.66-4.94l-3.66 2.84c1.88 3.74 5.76 6.46 10.32 6.46z"
-      />
-    </svg>
-  )
-}
-
 export default function SignUpPage() {
   const [role, setRole] = useState("seeker")
-  const [message, setMessage] = useState("")
-  const [isError, setIsError] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setMessage("")
     setLoading(true)
 
     const formData = new FormData(event.currentTarget)
@@ -58,23 +47,24 @@ export default function SignUpPage() {
       password: formData.get("password") as string,
       role,
     })
-    
-    if(!error){
-      router.push("/")
-       router.refresh()
-
-    }
 
     setLoading(false)
 
     if (error) {
-      setIsError(true)
-      setMessage(error.message ?? "Sign-up failed.")
+      toast.add({
+        title: "Sign-up failed",
+        description: error.message ?? "Could not create your account.",
+        type: "error",
+      })
       return
     }
 
-    setIsError(false)
-    setMessage("Account created successfully!")
+    toast.add({
+      title: "Account created successfully!",
+      type: "success",
+    })
+    router.push("/")
+    router.refresh()
   }
 
   const handleGoogleSignUp = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -84,14 +74,17 @@ export default function SignUpPage() {
     })
 
     if (error) {
-      setIsError(true)
-      setMessage(error.message ?? "Google sign-in failed.")
+      toast.add({
+        title: "Google sign-in failed",
+        description: error.message ?? "Could not sign in with Google.",
+        type: "error",
+      })
     }
   }
 
   return (
     <main className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4 py-10">
-      <div className="w-full max-w-sm rounded-2xl bg-[#1b1b1f] p-8 shadow-lg ring-1 ring-white/5">
+      <div className={authCardClass}>
         {/* Heading */}
         <h1 className="text-2xl font-semibold text-white">Sign Up</h1>
         <p className="mt-1 text-sm text-white/60">
@@ -128,85 +121,57 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="name" className="text-[13px] text-white/80">
-              Full Name
-            </label>
-            <input
+          <AuthField label="Full Name" htmlFor="name">
+            <AuthInput
               id="name"
               name="name"
               type="text"
               placeholder="John Doe"
               required
-              className="h-10 rounded-lg bg-white/5 px-3 text-sm text-white ring-1 ring-white/10 outline-none placeholder:text-white/30 focus:ring-2 focus:ring-[#6c5cf6]"
             />
-          </div>
+          </AuthField>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-[13px] text-white/80">
-              Email
-            </label>
-            <input
+          <AuthField label="Email" htmlFor="email">
+            <AuthInput
               id="email"
               name="email"
               type="email"
               placeholder="you@example.com"
               required
-              className="h-10 rounded-lg bg-white/5 px-3 text-sm text-white ring-1 ring-white/10 outline-none placeholder:text-white/30 focus:ring-2 focus:ring-[#6c5cf6]"
             />
-          </div>
+          </AuthField>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-[13px] text-white/80">
-              Password
-            </label>
-            <input
+          <AuthField label="Password" htmlFor="password">
+            <AuthInput
               id="password"
               name="password"
               type="password"
               placeholder="••••••••"
               required
               minLength={8}
-              className="h-10 rounded-lg bg-white/5 px-3 text-sm text-white ring-1 ring-white/10 outline-none placeholder:text-white/30 focus:ring-2 focus:ring-[#6c5cf6]"
             />
-          </div>
+          </AuthField>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 h-10 rounded-lg bg-[#6c5cf6] text-sm font-medium text-white transition-colors hover:bg-[#5b4be6] disabled:opacity-60"
+            className={authPrimaryButtonClass}
           >
             {loading ? "Creating account..." : "Get Started"}
           </button>
 
-          {/* Divider */}
-          <div className="mt-2 flex items-center gap-3">
-            <span className="h-px flex-1 bg-white/10" />
-            <span className="text-xs text-white/40">or</span>
-            <span className="h-px flex-1 bg-white/10" />
-          </div>
+          <AuthDivider />
 
           {/* Google login */}
           <button
             type="button"
             onClick={handleGoogleSignUp}
-            className="mt-2 flex h-10 items-center justify-center gap-2 rounded-lg bg-white text-sm font-medium text-[#1b1b1f] transition-opacity hover:opacity-90"
+            className={authGoogleButtonClass}
           >
             <GoogleIcon />
             Continue with Google
           </button>
         </form>
-
-        {message && (
-          <p
-            className={cn(
-              "mt-4 text-xs",
-              isError ? "text-red-400" : "text-emerald-400"
-            )}
-          >
-            {message}
-          </p>
-        )}
 
         {/* Switch to sign in */}
         <p className="mt-6 text-center text-[13px] text-white/60">

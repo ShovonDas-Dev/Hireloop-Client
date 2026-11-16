@@ -147,10 +147,8 @@ function RoleMenuGroup({ role }: { role: keyof typeof menuByRole }) {
                   isActive={isActive}
                   className="text-white/80 hover:bg-white/10 hover:text-white data-[active=true]:bg-[#6c5cf6] data-[active=true]:text-white"
                 >
-                  
-                    <item.icon />
-                    <span>{item.title}</span>
-                
+                  <item.icon />
+                  <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )

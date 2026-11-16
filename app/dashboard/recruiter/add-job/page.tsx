@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, type ChangeEvent, type FormEvent } from "react"
@@ -6,75 +5,30 @@ import { useState, type ChangeEvent, type FormEvent } from "react"
 import {
   Building2,
   CalendarDays,
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
   DollarSign,
   Globe,
   MapPin,
   Send,
-  X,
 } from "lucide-react"
+import { toast } from "@/components/ui/toast"
 import { createJobs } from "@/lib/acction/jobs"
-
-
-
-// Types
-type JobType = "Full-time" | "Part-time" | "Contract" | "Internship"
-
-type JobCategory =
-  | "Engineering & Tech"
-  | "Design & Creative"
-  | "Marketing"
-  | "Sales"
-  | "Customer Support"
-  | "Finance"
-  | "Other"
-
-type SalaryFrequency = "per hour" | "per month" | "per year"
-
-// Interface
-export interface JobFormData {
-  jobTitle: string
-  companyName: string
-  category: JobCategory | ""
-  jobType: JobType
-  isRemote: boolean
-  location: string
-  deadline: string
-  minSalary: string
-  maxSalary: string
-  frequency: SalaryFrequency
-  responsibilities: string
-  requirements: string
-}
-
-// Constants
-const JOB_TYPES: JobType[] = [
-  "Full-time",
-  "Part-time",
-  "Contract",
-  "Internship",
-]
-
-const JOB_CATEGORIES: JobCategory[] = [
-  "Engineering & Tech",
-  "Design & Creative",
-  "Marketing",
-  "Sales",
-  "Customer Support",
-  "Finance",
-  "Other",
-]
-
-const FREQUENCIES: SalaryFrequency[] = [
-  "per hour",
-  "per month",
-  "per year",
-]
+import {
+  jobInputClass as inputClass,
+  jobLabelClass as labelClass,
+  jobTextareaClass as textareaClass,
+} from "@/lib/form-styles"
+import {
+  FREQUENCIES,
+  JOB_CATEGORIES,
+  JOB_TYPES,
+  type JobFormData,
+  type JobType,
+} from "@/types/job"
 
 // Initial Form
- const initialForm: JobFormData = {
+const initialForm: JobFormData = {
   jobTitle: "",
   companyName: "",
   category: "",
@@ -89,23 +43,13 @@ const FREQUENCIES: SalaryFrequency[] = [
   requirements: "",
 }
 
-
-
-// Styles
-const inputClass =
-  "h-11 w-full rounded-xl border border-transparent bg-[#1e1e21] px-4 text-sm text-white outline-none placeholder:text-[#5a5a60] focus:border-[#5c53fe] focus:ring-2 focus:ring-[#5c53fe]/30 [color-scheme:dark]"
-
-const labelClass = "block text-sm font-medium text-[#f4f4f5]"
-
 export default function AddJob() {
   const [form, setForm] = useState<JobFormData>(initialForm)
-  const [showSuccess, setShowSuccess] = useState<boolean>(false)
+  const [submitting, setSubmitting] = useState<boolean>(false)
 
   // Handle Input Changes
   const handleChange = (
-    e: ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ): void => {
     const { name, value } = e.target
 
@@ -132,17 +76,33 @@ export default function AddJob() {
   }
 
   // Handle Form Submit
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    setSubmitting(true)
 
-    console.log("New job data:", form)
+    try {
+      await createJobs(form)
 
-    createJobs(form)
-
-    setShowSuccess(true)
-    setForm({ ...initialForm })
+      toast.add({
+        title: "Job published successfully!",
+        description: "Your job listing is now live.",
+        type: "success",
+      })
+      setForm({ ...initialForm })
+    } catch (err) {
+      console.error(err)
+      toast.add({
+        title: "Failed to publish job",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again.",
+        type: "error",
+      })
+    } finally {
+      setSubmitting(false)
+    }
   }
-
 
   return (
     <form
@@ -150,16 +110,13 @@ export default function AddJob() {
       className="min-h-screen w-full bg-[#131314] text-white"
     >
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 border-b border-[#2a2a2b] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-medium">
               <span className="text-[#a0a0ab]">Manage Jobs</span>
               <ChevronRight className="h-3 w-3 text-[#5a5a60]" />
-              <span className="text-[#c3c0ff]">
-                Create New Listing
-              </span>
+              <span className="text-[#c3c0ff]">Create New Listing</span>
             </div>
 
             <h1 className="text-2xl font-medium text-white sm:text-[32px] sm:leading-tight">
@@ -174,35 +131,15 @@ export default function AddJob() {
 
           <button
             type="submit"
-            className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5c53fe] px-6 text-sm font-medium text-white transition-colors hover:bg-[#4a42e8] sm:shrink-0"
+            disabled={submitting}
+            className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5c53fe] px-6 text-sm font-medium text-white transition-colors hover:bg-[#4a42e8] disabled:opacity-60 sm:shrink-0"
           >
-            Publish Job
+            {submitting ? "Publishing..." : "Publish Job"}
             <Send className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Success Message */}
-        {showSuccess && (
-          <div className="mb-6 flex items-center justify-between rounded-xl border border-[#232327] bg-[#1e1e21] p-4">
-            <p className="flex items-center gap-2 text-sm text-white">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              Job published successfully! Check the console for the full form
-              data.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setShowSuccess(false)}
-              aria-label="Close"
-              className="text-[#a0a0ab] transition-colors hover:text-white"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
         <div className="space-y-6">
-
           {/* Section 1: Basic Information */}
           <section className="space-y-5 rounded-2xl bg-[#151516] p-6">
             <div className="flex items-center gap-3">
@@ -230,7 +167,6 @@ export default function AddJob() {
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
-
               {/* Company Name */}
               <div className="space-y-1.5">
                 <label htmlFor="companyName" className={labelClass}>
@@ -296,10 +232,11 @@ export default function AddJob() {
                       key={type}
                       type="button"
                       onClick={() => handleJobType(type)}
-                      className={`h-11 rounded-xl text-sm font-medium transition-colors ${isActive
-                        ? "border border-[#5c53fe] bg-[#232327] text-white"
-                        : "border border-transparent bg-[#1e1e21] text-[#a0a0ab] hover:text-white"
-                        }`}
+                      className={`h-11 rounded-xl text-sm font-medium transition-colors ${
+                        isActive
+                          ? "border border-[#5c53fe] bg-[#232327] text-white"
+                          : "border border-transparent bg-[#1e1e21] text-[#a0a0ab] hover:text-white"
+                      }`}
                     >
                       {type}
                     </button>
@@ -343,18 +280,19 @@ export default function AddJob() {
                 role="switch"
                 aria-checked={form.isRemote}
                 aria-label="Remote work allowed"
-                className={`h-6 w-11 shrink-0 rounded-full p-1 transition-colors ${form.isRemote ? "bg-[#5c53fe]" : "bg-[#1f1f1f]"
-                  }`}
+                className={`h-6 w-11 shrink-0 rounded-full p-1 transition-colors ${
+                  form.isRemote ? "bg-[#5c53fe]" : "bg-[#1f1f1f]"
+                }`}
               >
                 <span
-                  className={`block h-5 w-5 rounded-full bg-white transition-transform ${form.isRemote ? "translate-x-5" : "translate-x-0"
-                    }`}
+                  className={`block h-5 w-5 rounded-full bg-white transition-transform ${
+                    form.isRemote ? "translate-x-5" : "translate-x-0"
+                  }`}
                 />
               </button>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
-
               {/* Location */}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
@@ -406,7 +344,6 @@ export default function AddJob() {
 
             {/* Salary */}
             <div className="grid gap-5 md:grid-cols-3">
-
               {/* Minimum Salary */}
               <div className="space-y-1.5">
                 <label htmlFor="minSalary" className={labelClass}>
@@ -502,7 +439,7 @@ export default function AddJob() {
                 required
                 rows={4}
                 placeholder="Describe what the person will do day to day..."
-                className="w-full rounded-xl border border-transparent bg-[#1e1e21] p-4 text-sm text-white outline-none placeholder:text-[#5a5a60] focus:border-[#5c53fe] focus:ring-2 focus:ring-[#5c53fe]/30"
+                className={textareaClass}
               />
             </div>
 
@@ -522,7 +459,7 @@ export default function AddJob() {
                 placeholder={
                   "• 3+ years of experience with React\n• Solid understanding of modern tools"
                 }
-                className="w-full rounded-xl border border-transparent bg-[#1e1e21] p-4 text-sm text-white outline-none placeholder:text-[#5a5a60] focus:border-[#5c53fe] focus:ring-2 focus:ring-[#5c53fe]/30"
+                className={textareaClass}
               />
             </div>
           </section>

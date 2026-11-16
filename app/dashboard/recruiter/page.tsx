@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react"
 
 const recruiterDashboard = () => {
-  return (
-    <div>recruiterDashboard</div>
-  )
+  return <div>recruiterDashboard</div>
 }
 
 export default recruiterDashboard

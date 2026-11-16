@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter, Instrument_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@wrksz/themes/next"
 import { ThemeHotkey } from "@/components/ui/theme-provider"
+import { Toaster } from "@/components/ui/toast"
 import { NavbarWrapper } from "@/components/Navbar/NavbarWrapper"
 import { cn } from "@/lib/utils"
 
@@ -46,8 +47,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ThemeHotkey />
-          <NavbarWrapper/>
+          <NavbarWrapper />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

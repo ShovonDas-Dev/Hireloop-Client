@@ -9,16 +9,9 @@ import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { authClient, useSession } from "@/lib/auth-client"
 
-
-
-
-
 // 2. Small pieces so the main Navbar stays easy to read
 
 function Logo() {
-
- 
-
   return (
     <Link href="/" className="flex items-center">
       <Image src="/logo.png" alt="HireLoop" width={110} height={36} priority />
@@ -26,7 +19,15 @@ function Logo() {
   )
 }
 
-function NavLink({ label, href, onClick }: { label: string; href: string; onClick?: () => void }) {
+function NavLink({
+  label,
+  href,
+  onClick,
+}: {
+  label: string
+  href: string
+  onClick?: () => void
+}) {
   const pathname = usePathname()
   const isActive = pathname === href
 
@@ -47,19 +48,18 @@ function NavLink({ label, href, onClick }: { label: string; href: string; onClic
 // 3. Main navbar — dark floating pill like the design
 export function Navbar() {
   const [open, setOpen] = useState(false)
-   const {data : session} = useSession()
+  const { data: session } = useSession()
   const user = session?.user
 
-
   const navLinks = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/company" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Dashboard", href: `dashboard/${user?.role || "seeker"}`}
-]
+    { label: "Browse Jobs", href: "/jobs" },
+    { label: "Company", href: "/company" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Dashboard", href: `dashboard/${user?.role || "seeker"}` },
+  ]
 
   const handleLogout = async () => {
-    await authClient.signOut();
+    await authClient.signOut()
   }
 
   return (
@@ -77,34 +77,34 @@ export function Navbar() {
 
         {/* Right: sign in + get started */}
 
-          {user ? <div className="flex gap-4">
-             <p>Wellcome {user?.name}</p>
+        {user ? (
+          <div className="flex gap-4">
+            <p>Wellcome {user?.name}</p>
             <button
-            onClick={handleLogout}
-            className="rounded-lg bg-[#f33535] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#f60a0a]"
-          >
-            Log Out
-          </button>
-          </div> : 
+              onClick={handleLogout}
+              className="rounded-lg bg-[#f33535] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#f60a0a]"
+            >
+              Log Out
+            </button>
+          </div>
+        ) : (
           <>
             <div className="hidden items-center gap-5 md:flex">
-          <Link
-            href="/sign-in"
-            className="text-[13px] text-white/80 transition-colors hover:text-white"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/sign-up"
-            className="rounded-lg bg-[#6c5cf6] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#5b4be6]"
-          >
-            Get Started
-          </Link>
-        </div>
-          </> }
-
-
-        
+              <Link
+                href="/sign-in"
+                className="text-[13px] text-white/80 transition-colors hover:text-white"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/sign-up"
+                className="rounded-lg bg-[#6c5cf6] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#5b4be6]"
+              >
+                Get Started
+              </Link>
+            </div>
+          </>
+        )}
 
         {/* Mobile: hamburger button */}
         <button
@@ -122,7 +122,11 @@ export function Navbar() {
         <div className="mx-auto mt-2 max-w-5xl rounded-2xl bg-[#1b1b1f] px-5 py-4 shadow-lg ring-1 ring-white/5 md:hidden">
           <div className="flex flex-col gap-4">
             {navLinks.map((link) => (
-              <NavLink key={link.href} {...link} onClick={() => setOpen(false)} />
+              <NavLink
+                key={link.href}
+                {...link}
+                onClick={() => setOpen(false)}
+              />
             ))}
           </div>
 

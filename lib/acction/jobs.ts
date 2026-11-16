@@ -1,26 +1,36 @@
-import { JobFormData } from "@/app/dashboard/recruiter/add-job/page"
+import type { JobFormData } from "@/types/job"
 
-const BASE_URL=process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
 
-export const createJobs = async (data : JobFormData) => {
-    const res = await fetch(`${BASE_URL}/jobs`, {
-        method: "POST" ,
-        headers: {
-            "content-type": "application/json"
-        },
-        body: JSON.stringify(data),
-    })
+// Create Post
+export const createJobs = async (data: JobFormData) => {
+  const res = await fetch(`${BASE_URL}/jobs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
 
-    return res.json()
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => "")
+    throw new Error(`Failed to create job: ${res.status} ${errorText}`)
+  }
+
+  return await res.json()
 }
 
-export const deleteJobs = async (id : string) => {
-        const res = await fetch(`${BASE_URL}/jobs/${id}`, {
-            method: "DELETE",
-        }
-    
-    )
+// Delete Post
+export const deleteJobs = async ({ jobId }: { jobId: string }) => {
+  const res = await fetch(`${BASE_URL}/jobs/${jobId}`, {
+    method: "DELETE",
+  })
 
-    const data = await res.json();
-    return data
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => "")
+    throw new Error(`Failed to delete job: ${res.status} ${errorText}`)
+  }
+
+  const data = await res.json().catch(() => null)
+  return data
 }
